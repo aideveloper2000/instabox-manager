@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private TextInputEditText inputKeyName;
     private Button btnAddKey;
     private FloatingActionButton fabRefresh;
-    private LinearLayout loadingText;
+    private TextView loadingText;
     private RecyclerView recyclerMachines;
 
     private MachineAdapter machineAdapter;
