@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Instabox Manager</string>
+
+    <!-- Main Screen -->
+    <string name="title_activity_main">Instabox Manager</string>
+    <string name="add_api_key">Add API Key</string>
+    <string name="refreshing">Refreshing…</string>
+    <string name="loading">Loading…</string>
+    <string name="no_machines">No machines found</string>
+    <string name="no_keys">No API keys configured</string>
+    <string name="add_first_key">Add your first Instabox API key</string>
+    <string name="remove_key">Remove</string>
+    <string name="sync_now">Sync Now</string>
+    <string name="sync_error">Sync failed</string>
+    <string name="sync_success">Sync complete</string>
+    <string name="select_key">Select API Key</string>
+
+    <!-- Machine Details -->
+    <string name="machine_details">Machine Details</string>
+    <string name="machine_name">Name</string>
+    <string name="machine_status">Status</string>
+    <string name="machine_state">State</string>
+    <string name="machine_template">Template</string>
+    <string name="machine_spec">vCPUs: %1$d, RAM: %2$.1f GB</string>
+    <string name="machine_storage">Storage: %1$s</string>
+    <string name="machine_idle">Idle after %1$d sec</string>
+    <string name="machine_last_error">Last Error</string>
+    <string name="machine_created">Created</string>
+    <string name="machine_updated">Updated</string>
+    <string name="machine_operations">Operations</string>
+    <string name="machine_actions">Actions</string>
+    <string name="machine_logs">Logs</string>
+    <string name="machine_metrics">Metrics</string>
+    <string name="machine_terminal">Terminal</string>
+    <string name="machine_vnc">VNC</string>
+    <string name="machine_ssh">SSH</string>
+    <string name="terminal">Terminal</string>
+    <string name="vnc">VNC</string>
+    <string name="ssh">SSH</string>
+    <string name="logs">Logs</string>
+    <string name="metrics">Metrics</string>
+    <string name="execute">Execute</string>
+
+    <!-- Actions -->
+    <string name="start_machine">Start</string>
+    <string name="stop_machine">Stop</string>
+    <string name="pause_machine">Pause</string>
+    <string name="resume_machine">Resume</string>
+    <string name="wake_machine">Wake</string>
+    <string name="restart_machine">Restart</string>
+    <string name="delete_machine">Delete</string>
+    <string name="fork_machine">Fork</string>
+    <string name="create_snapshot">Snapshot</string>
+    <string name="restore_snapshot">Restore</string>
+    <string name="run_command">Run Command</string>
+    <string name="enter_command">Enter command</string>
+    <string name="send_command">Send</string>
+    <string name="command_hint">Enter command to run</string>
+    <string name="command_output">Output</string>
+    <string name="command_error">Error</string>
+    <string name="command_running">Running…</string>
+
+    <!-- Status Colors -->
+    <string name="status_running">Running</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_creating">Creating</string>
+    <string name="status_deleting">Deleting</string>
+    <string name="status_error">Error</string>
+    <string name="status_idle">Idle</string>
+
+    <!-- Network -->
+    <string name="no_network">No network connection</string>
+    <string name="connection_error">Connection error</string>
+    <string name="api_error">API Error</string>
+
+    <!-- Setup -->
+    <string name="enter_api_keys">Enter your Instabox API keys below</string>
+    <string name="api_key_hint">ibk_… API key</string>
+    <string name="api_key_name">Key Name (optional)</string>
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+</resources>
