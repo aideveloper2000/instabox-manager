@@ -86,6 +86,9 @@ public class MachineDetailActivity extends AppCompatActivity {
         commandOutputText = findViewById(R.id.textCommandOutput);
         llLogs = findViewById(R.id.llLogs);
         llMetrics = findViewById(R.id.llMetrics);
+        llTerminal = findViewById(R.id.llTerminal);
+        llVnc = findViewById(R.id.llVnc);
+        llSsh = findViewById(R.id.llSsh);
     }
 
     private void setupAdapters() {
@@ -212,8 +215,26 @@ public class MachineDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
             return;
         }
-        stopMachine();
-        Toast.makeText(this, "Restart requested", Toast.LENGTH_SHORT).show();
+        ApiService service = ApiClient.createApiService(apiKey);
+        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        service.stopMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
+                .enqueue(new Callback<Object>() {
+                    @Override
+                    public void onResponse(Call<Object> call, Response<Object> response) {
+                        if (response.isSuccessful()) {
+                            startMachine();
+                        } else {
+                            Toast.makeText(MachineDetailActivity.this, "Restart failed: " + response.message(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Object> call, Throwable t) {
+                        Toast.makeText(MachineDetailActivity.this, "Network error: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void pauseMachine() {
