@@ -2,6 +2,8 @@ package com.instabox.manager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -35,6 +37,7 @@ public class MachineDetailActivity extends AppCompatActivity {
     private LinearLayout llStop;
     private LinearLayout llRestart;
     private LinearLayout llPause;
+    private LinearLayout llResume;
     private LinearLayout llCommand;
     private LinearLayout llLogs;
     private LinearLayout llMetrics;
@@ -81,6 +84,7 @@ public class MachineDetailActivity extends AppCompatActivity {
         llStop = findViewById(R.id.llStop);
         llRestart = findViewById(R.id.llRestart);
         llPause = findViewById(R.id.llPause);
+        llResume = findViewById(R.id.llResume);
         llCommand = findViewById(R.id.llCommand);
         commandLayout = findViewById(R.id.commandLayout);
         inputCommand = findViewById(R.id.inputCommand);
@@ -170,6 +174,7 @@ public class MachineDetailActivity extends AppCompatActivity {
         llStop.setOnClickListener(v -> stopMachine());
         llRestart.setOnClickListener(v -> restartMachine());
         llPause.setOnClickListener(v -> pauseMachine());
+        llResume.setOnClickListener(v -> resumeMachine());
         llCommand.setOnClickListener(v -> {
             commandLayout.setVisibility(View.VISIBLE);
         });
@@ -188,16 +193,36 @@ public class MachineDetailActivity extends AppCompatActivity {
         llSsh.setOnClickListener(v -> Toast.makeText(this, "SSH", Toast.LENGTH_SHORT).show());
     }
 
+    private Callback<Object> actionCallback(String successMessage) {
+        return new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(MachineDetailActivity.this, successMessage, Toast.LENGTH_SHORT).show();
+                    loadMachineDetails();
+                } else {
+                    Toast.makeText(MachineDetailActivity.this, "Failed: " + response.message(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(MachineDetailActivity.this, "Network error: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
     private void startMachine() {
         if (machine == null || machine.getId() == null) {
             Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
             return;
         }
-        executeOperationAction(machine.getId(), () -> {
-            ApiService service = ApiClient.createApiService(apiKey);
-            String idempotencyKey = java.util.UUID.randomUUID().toString();
-            service.startMachine("Bearer " + apiKey, machine.getId(), idempotencyKey);
-        });
+        ApiService service = ApiClient.createApiService(apiKey);
+        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        service.startMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
+                .enqueue(actionCallback("Started machine"));
     }
 
     private void stopMachine() {
@@ -205,11 +230,32 @@ public class MachineDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
             return;
         }
-        executeOperationAction(machine.getId(), () -> {
-            ApiService service = ApiClient.createApiService(apiKey);
-            String idempotencyKey = java.util.UUID.randomUUID().toString();
-            service.stopMachine("Bearer " + apiKey, machine.getId(), idempotencyKey);
-        });
+        ApiService service = ApiClient.createApiService(apiKey);
+        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        service.stopMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
+                .enqueue(actionCallback("Stopped machine"));
+    }
+
+    private void pauseMachine() {
+        if (machine == null || machine.getId() == null) {
+            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ApiService service = ApiClient.createApiService(apiKey);
+        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        service.suspendMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
+                .enqueue(actionCallback("Paused machine"));
+    }
+
+    private void resumeMachine() {
+        if (machine == null || machine.getId() == null) {
+            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ApiService service = ApiClient.createApiService(apiKey);
+        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        service.resumeMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
+                .enqueue(actionCallback("Resumed machine"));
     }
 
     private void restartMachine() {
@@ -217,14 +263,16 @@ public class MachineDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
             return;
         }
+        final String machineId = machine.getId();
+        Toast.makeText(this, "Restarting machine…", Toast.LENGTH_SHORT).show();
         ApiService service = ApiClient.createApiService(apiKey);
         String idempotencyKey = java.util.UUID.randomUUID().toString();
-        service.stopMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
+        service.stopMachine("Bearer " + apiKey, machineId, idempotencyKey)
                 .enqueue(new Callback<Object>() {
                     @Override
                     public void onResponse(Call<Object> call, Response<Object> response) {
                         if (response.isSuccessful()) {
-                            startMachine();
+                            waitForStoppedThenStart(machineId, 0);
                         } else {
                             Toast.makeText(MachineDetailActivity.this, "Restart failed: " + response.message(),
                                     Toast.LENGTH_SHORT).show();
@@ -239,15 +287,31 @@ public class MachineDetailActivity extends AppCompatActivity {
                 });
     }
 
-    private void pauseMachine() {
-        if (machine == null || machine.getId() == null) {
-            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+    private void waitForStoppedThenStart(final String machineId, final int attempt) {
+        if (attempt >= 20) {
+            Toast.makeText(this, "Restart timed out waiting for stop", Toast.LENGTH_SHORT).show();
             return;
         }
-        executeOperationAction(machine.getId(), () -> {
-            ApiService service = ApiClient.createApiService(apiKey);
-            String idempotencyKey = java.util.UUID.randomUUID().toString();
-            service.suspendMachine("Bearer " + apiKey, machine.getId(), idempotencyKey);
+        ApiService service = ApiClient.createApiService(apiKey);
+        service.getMachine("Bearer " + apiKey, machineId).enqueue(new Callback<Machine>() {
+            @Override
+            public void onResponse(Call<Machine> call, Response<Machine> response) {
+                if (response.isSuccessful() && response.body() != null
+                        && "stopped".equals(response.body().getState())) {
+                    ApiService svc = ApiClient.createApiService(apiKey);
+                    svc.startMachine("Bearer " + apiKey, machineId, java.util.UUID.randomUUID().toString())
+                            .enqueue(actionCallback("Restarted machine"));
+                } else {
+                    new Handler(Looper.getMainLooper())
+                            .postDelayed(() -> waitForStoppedThenStart(machineId, attempt + 1), 1500);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Machine> call, Throwable t) {
+                new Handler(Looper.getMainLooper())
+                        .postDelayed(() -> waitForStoppedThenStart(machineId, attempt + 1), 1500);
+            }
         });
     }
 
@@ -289,10 +353,6 @@ public class MachineDetailActivity extends AppCompatActivity {
                         });
                     }
                 });
-    }
-
-    private void executeOperationAction(String machineId, ApiService.ApiServiceOperation operation) {
-        operation.execute();
     }
 
     @Override

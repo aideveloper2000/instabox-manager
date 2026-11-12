@@ -296,7 +296,33 @@
                     android:textSize="14sp"
                     android:textColor="@color/primary"
                     android:textStyle="bold" />
-            </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                android:id="@+id/llResume"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="?attr/selectableItemBackground"
+                android:padding="12dp"
+                android:layout_marginBottom="4dp">
+
+                <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/rounded_corner"
+                android:tint="@color/status_running" />
+
+                <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="@string/resume_machine"
+                android:textSize="14sp"
+                android:textColor="@color/primary"
+                android:textStyle="bold" />
+                </LinearLayout>
 
             <!-- Terminal -->
             <LinearLayout

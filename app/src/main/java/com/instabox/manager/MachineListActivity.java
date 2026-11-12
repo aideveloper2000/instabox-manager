@@ -2,6 +2,8 @@ package com.instabox.manager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -45,6 +47,7 @@ public class MachineListActivity extends AppCompatActivity {
     private LinearLayout llStop;
     private LinearLayout llRestart;
     private LinearLayout llPause;
+    private LinearLayout llResume;
     private LinearLayout llCommand;
     private TextInputLayout commandLayout;
     private TextInputEditText inputCommand;
@@ -76,6 +79,7 @@ public class MachineListActivity extends AppCompatActivity {
         llStop = findViewById(R.id.llStop);
         llRestart = findViewById(R.id.llRestart);
         llPause = findViewById(R.id.llPause);
+        llResume = findViewById(R.id.llResume);
         llCommand = findViewById(R.id.llCommand);
         commandLayout = findViewById(R.id.commandLayout);
         inputCommand = findViewById(R.id.inputCommand);
@@ -104,6 +108,7 @@ public class MachineListActivity extends AppCompatActivity {
         llStop.setOnClickListener(v -> stopMachine());
         llRestart.setOnClickListener(v -> restartMachine());
         llPause.setOnClickListener(v -> pauseMachine());
+        llResume.setOnClickListener(v -> resumeMachine());
         llCommand.setOnClickListener(v -> {
             commandLayout.setVisibility(View.VISIBLE);
         });
@@ -210,6 +215,7 @@ public class MachineListActivity extends AppCompatActivity {
         llStop.setVisibility(View.VISIBLE);
         llRestart.setVisibility(View.VISIBLE);
         llPause.setVisibility(View.VISIBLE);
+        llResume.setVisibility(View.VISIBLE);
     }
 
     private void startMachine() {
@@ -226,6 +232,7 @@ public class MachineListActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             Toast.makeText(MachineListActivity.this, "Started machine",
                                     Toast.LENGTH_SHORT).show();
+                            loadMachines();
                         } else {
                             Toast.makeText(MachineListActivity.this, "Failed: " + response.message(),
                                     Toast.LENGTH_SHORT).show();
@@ -254,6 +261,7 @@ public class MachineListActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             Toast.makeText(MachineListActivity.this, "Stopped machine",
                                     Toast.LENGTH_SHORT).show();
+                            loadMachines();
                         } else {
                             Toast.makeText(MachineListActivity.this, "Failed: " + response.message(),
                                     Toast.LENGTH_SHORT).show();
@@ -282,6 +290,36 @@ public class MachineListActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             Toast.makeText(MachineListActivity.this, "Paused machine",
                                     Toast.LENGTH_SHORT).show();
+                            loadMachines();
+                        } else {
+                            Toast.makeText(MachineListActivity.this, "Failed: " + response.message(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Object> call, Throwable t) {
+                        Toast.makeText(MachineListActivity.this, "Network error: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void resumeMachine() {
+        if (selectedMachine == null || selectedMachine.getId() == null) {
+            Toast.makeText(this, "Select a machine to resume", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ApiService service = ApiClient.createApiService(selectedApiKey);
+        String idempotencyKey = UUID.randomUUID().toString();
+        service.resumeMachine("Bearer " + selectedApiKey, selectedMachine.getId(), idempotencyKey)
+                .enqueue(new Callback<Object>() {
+                    @Override
+                    public void onResponse(Call<Object> call, Response<Object> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(MachineListActivity.this, "Resumed machine",
+                                    Toast.LENGTH_SHORT).show();
+                            loadMachines();
                         } else {
                             Toast.makeText(MachineListActivity.this, "Failed: " + response.message(),
                                     Toast.LENGTH_SHORT).show();
@@ -301,14 +339,16 @@ public class MachineListActivity extends AppCompatActivity {
             Toast.makeText(this, "Select a machine to restart", Toast.LENGTH_SHORT).show();
             return;
         }
+        final String machineId = selectedMachine.getId();
+        Toast.makeText(this, "Restarting machine…", Toast.LENGTH_SHORT).show();
         ApiService service = ApiClient.createApiService(selectedApiKey);
         String idempotencyKey = UUID.randomUUID().toString();
-        service.stopMachine("Bearer " + selectedApiKey, selectedMachine.getId(), idempotencyKey)
+        service.stopMachine("Bearer " + selectedApiKey, machineId, idempotencyKey)
                 .enqueue(new Callback<Object>() {
                     @Override
                     public void onResponse(Call<Object> call, Response<Object> response) {
                         if (response.isSuccessful()) {
-                            startMachine();
+                            waitForStoppedThenStart(machineId, 0);
                         } else {
                             Toast.makeText(MachineListActivity.this, "Restart failed: " + response.message(),
                                     Toast.LENGTH_SHORT).show();
@@ -321,6 +361,52 @@ public class MachineListActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void waitForStoppedThenStart(final String machineId, final int attempt) {
+        if (attempt >= 20) {
+            Toast.makeText(this, "Restart timed out waiting for stop", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ApiService service = ApiClient.createApiService(selectedApiKey);
+        service.getMachine("Bearer " + selectedApiKey, machineId).enqueue(new Callback<Machine>() {
+            @Override
+            public void onResponse(Call<Machine> call, Response<Machine> response) {
+                if (response.isSuccessful() && response.body() != null
+                        && "stopped".equals(response.body().getState())) {
+                    ApiService svc = ApiClient.createApiService(selectedApiKey);
+                    svc.startMachine("Bearer " + selectedApiKey, machineId, UUID.randomUUID().toString())
+                            .enqueue(new Callback<Object>() {
+                                @Override
+                                public void onResponse(Call<Object> c, Response<Object> r) {
+                                    if (r.isSuccessful()) {
+                                        Toast.makeText(MachineListActivity.this, "Restarted machine",
+                                                Toast.LENGTH_SHORT).show();
+                                        loadMachines();
+                                    } else {
+                                        Toast.makeText(MachineListActivity.this, "Restart failed: " + r.message(),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Object> c, Throwable t) {
+                                    Toast.makeText(MachineListActivity.this, "Network error: " + t.getMessage(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                } else {
+                    new Handler(Looper.getMainLooper())
+                            .postDelayed(() -> waitForStoppedThenStart(machineId, attempt + 1), 1500);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Machine> call, Throwable t) {
+                new Handler(Looper.getMainLooper())
+                        .postDelayed(() -> waitForStoppedThenStart(machineId, attempt + 1), 1500);
+            }
+        });
     }
 
     private void executeCommand(String command) {
