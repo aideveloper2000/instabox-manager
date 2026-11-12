@@ -21,6 +21,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import com.instabox.manager.ApiService.MachineListResponse;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +89,20 @@ public class MainActivity extends AppCompatActivity {
         });
         recyclerKeys.setLayoutManager(new LinearLayoutManager(this));
         recyclerKeys.setAdapter(keyAdapter);
+
+        allMachines = new ArrayList<>();
+        machineAdapter = new MachineAdapter(this);
+        machineAdapter.setOnItemClickListener(machine -> {
+            if (machine.getId() == null) {
+                return;
+            }
+            Intent intent = new Intent(MainActivity.this, MachineDetailActivity.class);
+            intent.putExtra("machine_id", machine.getId());
+            intent.putExtra("api_key", machine.getApiKey());
+            startActivity(intent);
+        });
+        recyclerMachines.setLayoutManager(new LinearLayoutManager(this));
+        recyclerMachines.setAdapter(machineAdapter);
     }
 
     private void setupListeners() {
@@ -168,15 +184,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void syncMachinesWithKey(String apiKey) {
         ApiService service = ApiClient.createApiService(apiKey);
-        Call<List<Machine>> call = service.listMachines("Bearer " + apiKey, apiKey);
+        Call<MachineListResponse> call = service.listMachines("Bearer " + apiKey, apiKey);
 
-        call.enqueue(new Callback<List<Machine>>() {
+        call.enqueue(new Callback<MachineListResponse>() {
             @Override
-            public void onResponse(Call<List<Machine>> call, Response<List<Machine>> response) {
+            public void onResponse(Call<MachineListResponse> call, Response<MachineListResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    final boolean[] found = {false};
-                    synchronized(allMachines) {
-                        for (Machine m : response.body()) {
+                    List<Machine> fetched = response.body().getMachines();
+                    if (fetched == null) {
+                        fetched = new ArrayList<>();
+                    }
+                    final int fetchedCount = fetched.size();
+                    synchronized (allMachines) {
+                        for (Machine m : fetched) {
+                            m.setApiKey(apiKey);
                             boolean exists = false;
                             for (Machine existing : allMachines) {
                                 if (existing.getId() != null && existing.getId().equals(m.getId())) {
@@ -186,17 +207,14 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if (!exists) {
                                 allMachines.add(m);
-                                found[0] = true;
                             }
                         }
                     }
-                    if (found[0]) {
-                        runOnUiThread(() -> {
-                            machineAdapter.notifyDataSetChanged();
-                            Toast.makeText(MainActivity.this, "Synced " + response.body().size() + " machines",
-                                    Toast.LENGTH_SHORT).show();
-                        });
-                    }
+                    runOnUiThread(() -> {
+                        machineAdapter.setMachines(allMachines);
+                        Toast.makeText(MainActivity.this, "Synced " + fetchedCount + " machines",
+                                Toast.LENGTH_SHORT).show();
+                    });
                 } else {
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Sync failed: " + response.message(),
                             Toast.LENGTH_SHORT).show());
@@ -205,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Machine>> call, Throwable t) {
+            public void onFailure(Call<MachineListResponse> call, Throwable t) {
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Network error: " + t.getMessage(),
                         Toast.LENGTH_SHORT).show());
                 runOnUiThread(() -> finishSync());

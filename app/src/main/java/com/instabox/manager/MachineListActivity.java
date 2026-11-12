@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import com.instabox.manager.ApiService.MachineListResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -123,14 +125,17 @@ public class MachineListActivity extends AppCompatActivity {
         }
 
         ApiService service = ApiClient.createApiService(selectedApiKey);
-        Call<List<Machine>> call = service.listMachines("Bearer " + selectedApiKey, selectedApiKey);
+        Call<MachineListResponse> call = service.listMachines("Bearer " + selectedApiKey, selectedApiKey);
 
-        call.enqueue(new Callback<List<Machine>>() {
+        call.enqueue(new Callback<MachineListResponse>() {
             @Override
-            public void onResponse(Call<List<Machine>> call, Response<List<Machine>> response) {
+            public void onResponse(Call<MachineListResponse> call, Response<MachineListResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     machines.clear();
-                    machines.addAll(response.body());
+                    List<Machine> fetched = response.body().getMachines();
+                    if (fetched != null) {
+                        machines.addAll(fetched);
+                    }
                     machineAdapter.setMachines(machines);
                     if (latestViewedMachine == null && !machines.isEmpty()) {
                         latestViewedMachine = machines.get(0);
@@ -146,7 +151,7 @@ public class MachineListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Machine>> call, Throwable t) {
+            public void onFailure(Call<MachineListResponse> call, Throwable t) {
                 Toast.makeText(MachineListActivity.this, "Network error: " + t.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }

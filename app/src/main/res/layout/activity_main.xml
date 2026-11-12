@@ -133,6 +133,24 @@
                 android:layout_marginTop="8dp"
                 android:scrollbars="vertical" />
 
+            <!-- Machines Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/machines"
+                android:textColor="@color/primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerMachines"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                android:scrollbars="vertical" />
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

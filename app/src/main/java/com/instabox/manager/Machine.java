@@ -15,26 +15,26 @@ public class Machine implements Serializable {
     private Spec spec;
     private Storage storage;
     private Runtime runtime;
-    private Long autoSuspendAfterSeconds;
-    private Long maxRunMinutes;
-    private Long runStartedAt;
-    private Long cooldownUntil;
+    private String autoSuspendAfterSeconds;
+    private String maxRunMinutes;
+    private String runStartedAt;
+    private String cooldownUntil;
     private Map<String, Object> metadata;
     private boolean vault;
     private String guestUser;
     private String orgId;
-    private Long createdAt;
-    private Long updatedAt;
+    private String createdAt;
+    private String updatedAt;
     private Snapshot snapshot;
     private Image image;
     private Error lastError;
-    private Long archiveAt;
-    private Long deleteAt;
-    private Long readyAt;
+    private String archiveAt;
+    private String deleteAt;
+    private String readyAt;
     private String cooldownReason;
     private AbuseLock abuseLock;
     private boolean suspendable;
-    private Long autoSuspendedAt;
+    private String autoSuspendedAt;
     private List<String> envNames;
     private boolean free;
     private boolean earlyAllowanceEnded;
@@ -47,6 +47,12 @@ public class Machine implements Serializable {
     private String state2;
     private String createdAt2;
     private String updatedAt2;
+
+    // Local-only: which API key this machine was fetched with (not part of the API payload).
+    private String apiKey;
+
+    public String getApiKey() { return apiKey; }
+    public void setApiKey(String apiKey) { this.apiKey = apiKey; }
 
     public static class Template {
         private String id;
@@ -245,14 +251,14 @@ public class Machine implements Serializable {
     public void setStorage(Storage storage) { this.storage = storage; }
     public Runtime getRuntime() { return runtime; }
     public void setRuntime(Runtime runtime) { this.runtime = runtime; }
-    public Long getAutoSuspendAfterSeconds() { return autoSuspendAfterSeconds; }
-    public void setAutoSuspendAfterSeconds(Long autoSuspendAfterSeconds) { this.autoSuspendAfterSeconds = autoSuspendAfterSeconds; }
-    public Long getMaxRunMinutes() { return maxRunMinutes; }
-    public void setMaxRunMinutes(Long maxRunMinutes) { this.maxRunMinutes = maxRunMinutes; }
-    public Long getRunStartedAt() { return runStartedAt; }
-    public void setRunStartedAt(Long runStartedAt) { this.runStartedAt = runStartedAt; }
-    public Long getCooldownUntil() { return cooldownUntil; }
-    public void setCooldownUntil(Long cooldownUntil) { this.cooldownUntil = cooldownUntil; }
+    public String getAutoSuspendAfterSeconds() { return autoSuspendAfterSeconds; }
+    public void setAutoSuspendAfterSeconds(String autoSuspendAfterSeconds) { this.autoSuspendAfterSeconds = autoSuspendAfterSeconds; }
+    public String getMaxRunMinutes() { return maxRunMinutes; }
+    public void setMaxRunMinutes(String maxRunMinutes) { this.maxRunMinutes = maxRunMinutes; }
+    public String getRunStartedAt() { return runStartedAt; }
+    public void setRunStartedAt(String runStartedAt) { this.runStartedAt = runStartedAt; }
+    public String getCooldownUntil() { return cooldownUntil; }
+    public void setCooldownUntil(String cooldownUntil) { this.cooldownUntil = cooldownUntil; }
     public Map<String, Object> getMetadata() { return metadata; }
     public void setMetadata(Map<String, Object> metadata) { this.metadata = metadata; }
     public boolean isVault() { return vault; }
@@ -261,30 +267,30 @@ public class Machine implements Serializable {
     public void setGuestUser(String guestUser) { this.guestUser = guestUser; }
     public String getOrgId() { return orgId; }
     public void setOrgId(String orgId) { this.orgId = orgId; }
-    public Long getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Long createdAt) { this.createdAt = createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Long updatedAt) { this.updatedAt = updatedAt; }
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public String getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
     public Snapshot getSnapshot() { return snapshot; }
     public void setSnapshot(Snapshot snapshot) { this.snapshot = snapshot; }
     public Image getImage() { return image; }
     public void setImage(Image image) { this.image = image; }
     public Error getLastError() { return lastError; }
     public void setLastError(Error lastError) { this.lastError = lastError; }
-    public Long getArchiveAt() { return archiveAt; }
-    public void setArchiveAt(Long archiveAt) { this.archiveAt = archiveAt; }
-    public Long getDeleteAt() { return deleteAt; }
-    public void setDeleteAt(Long deleteAt) { this.deleteAt = deleteAt; }
-    public Long getReadyAt() { return readyAt; }
-    public void setReadyAt(Long readyAt) { this.readyAt = readyAt; }
+    public String getArchiveAt() { return archiveAt; }
+    public void setArchiveAt(String archiveAt) { this.archiveAt = archiveAt; }
+    public String getDeleteAt() { return deleteAt; }
+    public void setDeleteAt(String deleteAt) { this.deleteAt = deleteAt; }
+    public String getReadyAt() { return readyAt; }
+    public void setReadyAt(String readyAt) { this.readyAt = readyAt; }
     public String getCooldownReason() { return cooldownReason; }
     public void setCooldownReason(String cooldownReason) { this.cooldownReason = cooldownReason; }
     public AbuseLock getAbuseLock() { return abuseLock; }
     public void setAbuseLock(AbuseLock abuseLock) { this.abuseLock = abuseLock; }
     public boolean isSuspendable() { return suspendable; }
     public void setSuspendable(boolean suspendable) { this.suspendable = suspendable; }
-    public Long getAutoSuspendedAt() { return autoSuspendedAt; }
-    public void setAutoSuspendedAt(Long autoSuspendedAt) { this.autoSuspendedAt = autoSuspendedAt; }
+    public String getAutoSuspendedAt() { return autoSuspendedAt; }
+    public void setAutoSuspendedAt(String autoSuspendedAt) { this.autoSuspendedAt = autoSuspendedAt; }
     public List<String> getEnvNames() { return envNames; }
     public void setEnvNames(List<String> envNames) { this.envNames = envNames; }
     public boolean isFree() { return free; }

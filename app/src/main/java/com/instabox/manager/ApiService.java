@@ -20,7 +20,7 @@ public interface ApiService {
     }
 
     @GET("v1/machines")
-    Call<List<Machine>> listMachines(
+    Call<MachineListResponse> listMachines(
             @Header("Authorization") String authHeader,
             @Header("X-API-Key") String apiKey
     );
@@ -90,13 +90,13 @@ public interface ApiService {
     );
 
     @GET("v1/templates")
-    Call<List<Template>> listTemplates(
+    Call<TemplateListResponse> listTemplates(
             @Header("Authorization") String authHeader,
             @Header("X-API-Key") String apiKey
     );
 
     @GET("v1/orgs")
-    Call<List<Org>> listOrgs(
+    Call<OrgListResponse> listOrgs(
             @Header("Authorization") String authHeader,
             @Header("X-API-Key") String apiKey
     );
@@ -320,4 +320,21 @@ public interface ApiService {
         public List<String> getInstances() { return instances; }
         public void setInstances(List<String> instances) { this.instances = instances; }
     }
+    static class MachineListResponse {
+        private List<Machine> machines;
+        public List<Machine> getMachines() { return machines; }
+    }
+
+    static class TemplateListResponse {
+        private List<Template> templates;
+        public List<Template> getTemplates() { return templates; }
+    }
+
+    static class OrgListResponse {
+        private List<Org> orgs;
+        public List<Org> getOrgs() { return orgs; }
+    }
+
+
+
 }

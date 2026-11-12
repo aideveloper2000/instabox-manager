@@ -46,12 +46,14 @@ public class MachineDetailActivity extends AppCompatActivity {
     private Button btnExecute;
     private TextView commandOutputText;
 
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_machine_detail);
+
+        executor = Executors.newSingleThreadExecutor();
 
         Intent intent = getIntent();
         machineId = intent.getStringExtra("machine_id");
@@ -296,6 +298,8 @@ public class MachineDetailActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        executor.shutdown();
+        if (executor != null) {
+            executor.shutdown();
+        }
     }
 }
