@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +24,17 @@ public class MachineAdapter extends RecyclerView.Adapter<MachineAdapter.ViewHold
 
     public interface OnItemClickListener {
         void onMachineClick(Machine machine);
+    }
+
+    public interface OnActionListener {
+        void onPauseClick(Machine machine);
+        void onResumeClick(Machine machine);
+    }
+
+    private OnActionListener actionListener;
+
+    public void setOnActionListener(OnActionListener actionListener) {
+        this.actionListener = actionListener;
     }
 
     public MachineAdapter(Context context) {
@@ -66,6 +78,21 @@ public class MachineAdapter extends RecyclerView.Adapter<MachineAdapter.ViewHold
         holder.stateText.setBackgroundTintList(ColorStateList.valueOf(
                 ContextCompat.getColor(context, R.color.surface_variant)));
         holder.stateText.setTextColor(statusColor);
+
+        boolean running = state.equals("running") || state.equals("created");
+        boolean paused = state.equals("paused") || state.equals("suspended");
+        holder.btnPause.setVisibility(running ? View.VISIBLE : View.GONE);
+        holder.btnResume.setVisibility(paused ? View.VISIBLE : View.GONE);
+        holder.btnPause.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onPauseClick(m);
+            }
+        });
+        holder.btnResume.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onResumeClick(m);
+            }
+        });
 
         if (m.getSpec() != null) {
             float memGb = m.getSpec().getMemMiB() / 1024f;
@@ -119,6 +146,8 @@ public class MachineAdapter extends RecyclerView.Adapter<MachineAdapter.ViewHold
         TextView specsText;
         TextView templateText;
         ImageView indicator;
+        ImageButton btnPause;
+        ImageButton btnResume;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -127,6 +156,8 @@ public class MachineAdapter extends RecyclerView.Adapter<MachineAdapter.ViewHold
             specsText = itemView.findViewById(R.id.textSpecs);
             templateText = itemView.findViewById(R.id.textTemplate);
             indicator = itemView.findViewById(R.id.indicatorState);
+            btnPause = itemView.findViewById(R.id.btnPause);
+            btnResume = itemView.findViewById(R.id.btnResume);
         }
     }
 }

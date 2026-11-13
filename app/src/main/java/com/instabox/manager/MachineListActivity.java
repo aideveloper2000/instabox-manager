@@ -108,14 +108,26 @@ public class MachineListActivity extends AppCompatActivity {
         });
         recyclerMachines.setLayoutManager(new LinearLayoutManager(this));
         recyclerMachines.setAdapter(machineAdapter);
+
+        machineAdapter.setOnActionListener(new MachineAdapter.OnActionListener() {
+            @Override
+            public void onPauseClick(Machine machine) {
+                pauseMachine(machine);
+            }
+
+            @Override
+            public void onResumeClick(Machine machine) {
+                resumeMachine(machine);
+            }
+        });
     }
 
     private void setupActionListeners() {
         llStart.setOnClickListener(v -> startMachine());
         llStop.setOnClickListener(v -> stopMachine());
         llRestart.setOnClickListener(v -> restartMachine());
-        llPause.setOnClickListener(v -> pauseMachine());
-        llResume.setOnClickListener(v -> resumeMachine());
+        llPause.setOnClickListener(v -> pauseMachine(selectedMachine));
+        llResume.setOnClickListener(v -> resumeMachine(selectedMachine));
         llWake.setOnClickListener(v -> wakeMachine());
         btnExecute.setOnClickListener(v -> {
             String cmd = inputCommand.getText() == null ? "" : inputCommand.getText().toString().trim();
@@ -305,14 +317,14 @@ public class MachineListActivity extends AppCompatActivity {
                 });
     }
 
-    private void pauseMachine() {
-        if (selectedMachine == null || selectedMachine.getId() == null) {
+    private void pauseMachine(Machine machine) {
+        if (machine == null || machine.getId() == null) {
             Snackbar.make(coordinatorList, R.string.select_key, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService service = ApiClient.createApiService(selectedApiKey);
         String idempotencyKey = UUID.randomUUID().toString();
-        service.suspendMachine("Bearer " + selectedApiKey, selectedMachine.getId(), idempotencyKey)
+        service.suspendMachine("Bearer " + selectedApiKey, machine.getId(), idempotencyKey)
                 .enqueue(new Callback<Object>() {
                     @Override
                     public void onResponse(Call<Object> call, Response<Object> response) {
@@ -333,14 +345,14 @@ public class MachineListActivity extends AppCompatActivity {
                 });
     }
 
-    private void resumeMachine() {
-        if (selectedMachine == null || selectedMachine.getId() == null) {
+    private void resumeMachine(Machine machine) {
+        if (machine == null || machine.getId() == null) {
             Snackbar.make(coordinatorList, R.string.select_key, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService service = ApiClient.createApiService(selectedApiKey);
         String idempotencyKey = UUID.randomUUID().toString();
-        service.resumeMachine("Bearer " + selectedApiKey, selectedMachine.getId(), idempotencyKey)
+        service.resumeMachine("Bearer " + selectedApiKey, machine.getId(), idempotencyKey)
                 .enqueue(new Callback<Object>() {
                     @Override
                     public void onResponse(Call<Object> call, Response<Object> response) {

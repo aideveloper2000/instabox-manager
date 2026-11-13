@@ -72,5 +72,34 @@
             android:layout_marginTop="2dp"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="@color/on_surface_variant" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnPause"
+                android:layout_width="@dimen/touch_min"
+                android:layout_height="@dimen/touch_min"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/pause_machine"
+                android:src="@drawable/ic_pause"
+                android:visibility="gone"
+                app:tint="@color/status_paused" />
+
+            <ImageButton
+                android:id="@+id/btnResume"
+                android:layout_width="@dimen/touch_min"
+                android:layout_height="@dimen/touch_min"
+                android:layout_marginStart="@dimen/space_xs"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/resume_machine"
+                android:src="@drawable/ic_play_arrow"
+                android:visibility="gone"
+                app:tint="@color/status_running" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

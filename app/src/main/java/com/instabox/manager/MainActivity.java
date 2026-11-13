@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -146,6 +147,30 @@ public class MainActivity extends AppCompatActivity {
         });
         recyclerMachines.setLayoutManager(new LinearLayoutManager(this));
         recyclerMachines.setAdapter(machineAdapter);
+
+        machineAdapter.setOnActionListener(new MachineAdapter.OnActionListener() {
+            @Override
+            public void onPauseClick(Machine machine) {
+                if (machine.getId() == null) {
+                    return;
+                }
+                ApiService service = ApiClient.createApiService(machine.getApiKey());
+                String idempotencyKey = UUID.randomUUID().toString();
+                service.suspendMachine("Bearer " + machine.getApiKey(), machine.getId(), idempotencyKey)
+                        .enqueue(actionCallback(getString(R.string.pause_machine)));
+            }
+
+            @Override
+            public void onResumeClick(Machine machine) {
+                if (machine.getId() == null) {
+                    return;
+                }
+                ApiService service = ApiClient.createApiService(machine.getApiKey());
+                String idempotencyKey = UUID.randomUUID().toString();
+                service.resumeMachine("Bearer " + machine.getApiKey(), machine.getId(), idempotencyKey)
+                        .enqueue(actionCallback(getString(R.string.resume_machine)));
+            }
+        });
     }
 
     private void setupListeners() {
@@ -195,6 +220,29 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+
+    private Callback<Object> actionCallback(String successMessage) {
+        return new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                if (response.isSuccessful()) {
+                    Snackbar.make(coordinatorMain, successMessage, Snackbar.LENGTH_SHORT).show();
+                    syncAll();
+                } else {
+                    Snackbar.make(coordinatorMain,
+                            getString(R.string.connection_error) + ": " + response.message(),
+                            Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Snackbar.make(coordinatorMain,
+                        getString(R.string.connection_error) + ": " + t.getMessage(),
+                        Snackbar.LENGTH_SHORT).show();
+            }
+        };
     }
 
     private void saveKeys() {
