@@ -2,6 +2,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorList"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
@@ -9,299 +11,297 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary">
+        android:background="@color/app_bar_background">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarList"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Machines"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        </androidx.appcompat.widget.Toolbar>
-
+            android:background="@color/app_bar_background"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/app_bar_on_background"
+            app:title="@string/machines"
+            app:titleTextColor="@color/app_bar_on_background" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="@dimen/space_md">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerMachines"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false" />
-
-            <!-- Selected Machine Preview -->
+            <!-- Selected machine preview -->
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardBackgroundColor="@color/surface_container_low"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="@dimen/space_md">
 
-                    <!-- Status + indicator -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="6dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/machine_status"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+                        android:orientation="horizontal">
 
                         <ImageView
                             android:id="@+id/indicatorState"
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/rounded_corner"
-                            android:tint="@color/status_unknown"
-                            android:visibility="visible" />
+                            android:layout_width="@dimen/status_dot"
+                            android:layout_height="@dimen/status_dot"
+                            android:src="@drawable/status_dot"
+                            app:tint="@color/status_unknown" />
 
                         <TextView
                             android:id="@+id/textStatus"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_sm"
                             android:layout_weight="1"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:visibility="visible" />
-                        </LinearLayout>
+                            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                            android:textColor="@color/on_surface_variant"
+                            tools:text="running" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/nameText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:layout_marginTop="@dimen/space_md"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:textColor="@color/on_surface"
+                        tools:text="work" />
 
                     <TextView
                         android:id="@+id/textSpecs2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="@color/on_surface_variant"
+                        tools:text="4 vCPU · 8.0 GB RAM" />
 
                     <TextView
                         android:id="@+id/textTemplate2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                        android:textColor="@color/on_surface_variant"
+                        tools:text="agent-browser" />
 
-                    <!-- Action buttons -->
                     <LinearLayout
-                        android:id="@+id/llStart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:background="?attr/selectableItemBackground"
-                        android:padding="10dp"
-                        android:layout_marginBottom="4dp">
+                        android:layout_marginTop="@dimen/space_md"
+                        android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/rounded_corner"
-                            android:tint="@color/status_running" />
-
-                        <TextView
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/llStart"
+                            style="@style/Widget.Material3.Button.TonalButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/space_xs"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
+                            android:minHeight="@dimen/touch_min"
                             android:text="@string/start_machine"
-                            android:textColor="@color/primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                            app:icon="@drawable/ic_play_arrow"
+                            app:iconGravity="textStart" />
 
-                    <LinearLayout
-                        android:id="@+id/llStop"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:background="?attr/selectableItemBackground"
-                        android:padding="10dp"
-                        android:layout_marginBottom="4dp">
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/rounded_corner"
-                            android:tint="@color/status_stopped" />
-
-                        <TextView
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/llStop"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_xs"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
+                            android:minHeight="@dimen/touch_min"
                             android:text="@string/stop_machine"
-                            android:textColor="@color/primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
+                            app:icon="@drawable/ic_stop"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/status_stopped" />
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/llRestart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:background="?attr/selectableItemBackground"
-                        android:padding="10dp"
-                        android:layout_marginBottom="4dp">
+                        android:layout_marginTop="@dimen/space_sm"
+                        android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/rounded_corner"
-                            android:tint="@color/status_paused" />
-
-                        <TextView
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/llRestart"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/space_xs"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
+                            android:minHeight="@dimen/touch_min"
                             android:text="@string/restart_machine"
-                            android:textColor="@color/primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
+                            app:icon="@drawable/ic_restart"
+                            app:iconGravity="textStart" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/llPause"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_xs"
+                            android:layout_weight="1"
+                            android:minHeight="@dimen/touch_min"
+                            android:text="@string/pause_machine"
+                            app:icon="@drawable/ic_pause"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/status_paused" />
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/llPause"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:background="?attr/selectableItemBackground"
-                        android:padding="10dp"
-                        android:layout_marginBottom="4dp">
+                        android:layout_marginTop="@dimen/space_sm"
+                        android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/rounded_corner"
-                            android:tint="@color/status_paused" />
-
-                        <TextView
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/llResume"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/space_xs"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:text="@string/pause_machine"
-                            android:textColor="@color/primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                        </LinearLayout>
+                            android:minHeight="@dimen/touch_min"
+                            android:text="@string/resume_machine"
+                            app:icon="@drawable/ic_play_arrow"
+                            app:iconGravity="textStart" />
 
-                        <LinearLayout
-                        android:id="@+id/llResume"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:background="?attr/selectableItemBackground"
-                        android:padding="10dp"
-                        android:layout_marginBottom="4dp">
-
-                        <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/rounded_corner"
-                        android:tint="@color/status_running" />
-
-                        <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/resume_machine"
-                        android:textColor="@color/primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                        </LinearLayout>
-
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/llWake"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_xs"
+                            android:layout_weight="1"
+                            android:minHeight="@dimen/touch_min"
+                            android:text="@string/wake_machine"
+                            app:icon="@drawable/ic_power"
+                            app:iconGravity="textStart" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Command Execution Section -->
-            <LinearLayout
-                android:id="@+id/llCommand"
+            <!-- Command -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_marginTop="@dimen/space_md"
+                app:cardBackgroundColor="@color/surface_container_low"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/commandLayout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp">
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_md">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputCommand"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/commandLayout"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textMultiLine"
-                        android:maxLines="4"
-                        android:hint="@string/enter_command" />
+                        android:hint="@string/enter_command">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputCommand"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:inputType="textMultiLine"
+                            android:maxLines="4" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/divider" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnExecute"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_sm"
+                        android:minHeight="@dimen/touch_min"
+                        android:text="@string/execute"
+                        app:icon="@drawable/ic_terminal"
+                        app:iconGravity="textStart" />
 
-                <Button
-                    android:id="@+id/btnExecute"
+                    <TextView
+                        android:id="@+id/textCommandOutput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        android:background="@drawable/bg_code"
+                        android:fontFamily="monospace"
+                        android:padding="@dimen/space_md"
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                        android:textColor="@color/on_surface"
+                        android:textIsSelectable="true"
+                        tools:text="Exit code: 0" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Machines list -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:layout_marginBottom="@dimen/space_lg"
+                app:cardBackgroundColor="@color/surface_container_low"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/outline_variant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/execute" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_md">
 
-                <TextView
-                    android:id="@+id/textCommandOutput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    android:autoLink="web"
-                    android:scrollbars="vertical" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/machines"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                        android:textColor="@color/on_surface_variant" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/noMachinesText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        android:text="@string/no_machines_hint"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="@color/on_surface_variant"
+                        android:visibility="gone" />
 
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerMachines"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_sm"
+                        android:nestedScrollingEnabled="false"
+                        tools:listitem="@layout/item_machine" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

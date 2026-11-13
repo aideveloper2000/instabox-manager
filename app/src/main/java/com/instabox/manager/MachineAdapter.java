@@ -1,6 +1,7 @@
 package com.instabox.manager;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,13 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.instabox.manager.R;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,44 +57,55 @@ public class MachineAdapter extends RecyclerView.Adapter<MachineAdapter.ViewHold
         Machine m = machines.get(position);
         holder.nameText.setText(m.getName());
 
-        // State
-        String state = m.getState() != null ? m.getState() : (m.getDesiredState() != null ? m.getDesiredState() : "unknown");
+        String state = m.getState() != null ? m.getState()
+                : (m.getDesiredState() != null ? m.getDesiredState() : "unknown");
         holder.stateText.setText(state);
 
-        // Status color indicator
-        int statusColor = R.color.status_unknown;
-        if (state.equals("running") || state.equals("created")) {
-            statusColor = R.color.status_running;
-        } else if (state.equals("stopped")) {
-            statusColor = R.color.status_stopped;
-        } else if (state.equals("paused") || state.equals("suspended")) {
-            statusColor = R.color.status_paused;
-        } else if (state.equals("creating")) {
-            statusColor = R.color.status_creating;
-        } else if (state.equals("deleting")) {
-            statusColor = R.color.status_deleting;
-        } else if (state.equals("error")) {
-            statusColor = R.color.status_error;
-        }
-        holder.indicator.setImageResource(statusColor);
+        int statusColor = statusColor(state);
+        holder.indicator.setColorFilter(statusColor);
+        holder.stateText.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(context, R.color.surface_variant)));
+        holder.stateText.setTextColor(statusColor);
 
-        // Specs
         if (m.getSpec() != null) {
             float memGb = m.getSpec().getMemMiB() / 1024f;
-            holder.specsText.setText(String.format(Locale.getDefault(), context.getString(R.string.machine_spec), m.getSpec().getVcpus(), memGb));
+            holder.specsText.setText(String.format(Locale.getDefault(),
+                    context.getString(R.string.machine_spec),
+                    m.getSpec().getVcpus(), memGb));
+            holder.specsText.setVisibility(View.VISIBLE);
+        } else {
+            holder.specsText.setText("");
         }
 
-        // Template
         if (m.getTemplate() != null && m.getTemplate().getId() != null) {
             holder.templateText.setText(m.getTemplate().getId());
+            holder.templateText.setVisibility(View.VISIBLE);
+        } else {
+            holder.templateText.setText("");
         }
 
-        // Click
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onMachineClick(m);
             }
         });
+    }
+
+    private int statusColor(String state) {
+        if (state.equals("running") || state.equals("created")) {
+            return ContextCompat.getColor(context, R.color.status_running);
+        } else if (state.equals("stopped")) {
+            return ContextCompat.getColor(context, R.color.status_stopped);
+        } else if (state.equals("paused") || state.equals("suspended")) {
+            return ContextCompat.getColor(context, R.color.status_paused);
+        } else if (state.equals("creating")) {
+            return ContextCompat.getColor(context, R.color.status_creating);
+        } else if (state.equals("deleting")) {
+            return ContextCompat.getColor(context, R.color.status_deleting);
+        } else if (state.equals("error")) {
+            return ContextCompat.getColor(context, R.color.status_error);
+        }
+        return ContextCompat.getColor(context, R.color.status_unknown);
     }
 
     @Override

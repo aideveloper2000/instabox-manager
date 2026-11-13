@@ -1,24 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Material 3 color roles (light) -->
+    <color name="primary">#283593</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#E1E3F8</color>
+    <color name="on_primary_container">#0B1459</color>
+
+    <color name="secondary">#575E71</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#DBE2F9</color>
+    <color name="on_secondary_container">#141B2C</color>
+
+    <color name="tertiary">#00696E</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#9CF1F5</color>
+    <color name="on_tertiary_container">#002022</color>
+
+    <color name="background">#FBF9FD</color>
+    <color name="on_background">#1A1B20</color>
+    <color name="surface">#FBF9FD</color>
+    <color name="on_surface">#1A1B20</color>
+    <color name="surface_variant">#E2E1EC</color>
+    <color name="on_surface_variant">#45464F</color>
+    <color name="surface_container_lowest">#FFFFFF</color>
+    <color name="surface_container_low">#F5F3F8</color>
+    <color name="surface_container">#EFECF2</color>
+    <color name="surface_container_high">#E9E6ED</color>
+    <color name="outline">#767680</color>
+    <color name="outline_variant">#C6C5D0</color>
+
+    <color name="error">#B3261E</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="error_container">#F9DEDC</color>
+    <color name="on_error_container">#410E0B</color>
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primary">#1A237E</color>
-    <color name="primary_dark">#0D0C22</color>
-    <color name="primary_light">#1A237E</color>
-    <color name="accent">#00BCD4</color>
-    <color name="background">#F5F5F5</color>
-    <color name="card_background">#FFFFFF</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="divider">#E0E0E0</color>
+    <color name="divider">@color/outline_variant</color>
 
-    <!-- Status colors -->
-    <color name="status_running">#4CAF50</color>
-    <color name="status_stopped">#F44336</color>
-    <color name="status_paused">#FF9800</color>
-    <color name="status_creating">#9C27B0</color>
+    <!-- Status colors (light) -->
+    <color name="status_running">#1E8E3E</color>
+    <color name="status_stopped">#D93025</color>
+    <color name="status_paused">#B26A00</color>
+    <color name="status_creating">#8E24AA</color>
     <color name="status_deleting">#607D8B</color>
-    <color name="status_error">#E53935</color>
+    <color name="status_error">#D93025</color>
     <color name="status_idle">#3F51B5</color>
-    <color name="status_unknown">#757575</color>
+    <color name="status_unknown">#6B7280</color>
+
+    <!-- Legacy aliases kept for existing code -->
+    <color name="app_bar_background">@color/primary</color>
+    <color name="app_bar_on_background">@color/on_primary</color>
+    <color name="primary_dark">#1A237E</color>
+    <color name="primary_light">#3949AB</color>
+    <color name="accent">#00696E</color>
+    <color name="card_background">@color/surface_container_lowest</color>
+    <color name="text_primary">@color/on_surface</color>
+    <color name="text_secondary">@color/on_surface_variant</color>
 </resources>

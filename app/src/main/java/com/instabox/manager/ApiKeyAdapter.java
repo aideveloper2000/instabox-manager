@@ -4,12 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.instabox.manager.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +40,12 @@ public class ApiKeyAdapter extends RecyclerView.Adapter<ApiKeyAdapter.ViewHolder
     }
 
     public void addApiKey(ApiKey key) {
-        apiKeys.add(key);
+        // The owning Activity mutates the backing list before calling this; only notify here.
         notifyItemInserted(getItemCount() - 1);
     }
 
     public void removeApiKey(int position) {
-        apiKeys.remove(position);
+        // The owning Activity mutates the backing list before calling this; only notify here.
         notifyItemRemoved(position);
     }
 
@@ -59,24 +60,38 @@ public class ApiKeyAdapter extends RecyclerView.Adapter<ApiKeyAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ApiKey key = apiKeys.get(position);
         holder.nameText.setText(key.getName());
+
         String keyText = key.getKey();
-        if (keyText != null && keyText.length() > 20) {
-            keyText = keyText.substring(0, 8) + "..." + keyText.substring(keyText.length() - 8);
+        if (keyText != null && keyText.length() > 12) {
+            keyText = keyText.substring(0, 6) + "…" + keyText.substring(keyText.length() - 4);
         }
         holder.keyText.setText(keyText);
 
-        // Set click listeners
+        int statusColor;
+        if (key.isSyncFailed()) {
+            holder.statusText.setText(R.string.sync_error);
+            statusColor = ContextCompat.getColor(context, R.color.error);
+        } else if (key.getMachineCount() > 0) {
+            holder.statusText.setText(context.getString(R.string.machine_count,
+                    key.getMachineCount(), key.getMachineCount() == 1 ? "" : "s"));
+            statusColor = ContextCompat.getColor(context, R.color.status_running);
+        } else {
+            holder.statusText.setText(R.string.not_synced);
+            statusColor = ContextCompat.getColor(context, R.color.status_unknown);
+        }
+        holder.statusText.setTextColor(statusColor);
+        holder.indicator.setColorFilter(statusColor);
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onKeyClick(key.getKey(), key.getName());
             }
         });
 
-        holder.keyText.setOnLongClickListener(v -> {
+        holder.btnRemove.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onRemoveClick(position);
+                listener.onRemoveClick(holder.getAdapterPosition());
             }
-            return true;
         });
     }
 
@@ -88,11 +103,17 @@ public class ApiKeyAdapter extends RecyclerView.Adapter<ApiKeyAdapter.ViewHolder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nameText;
         TextView keyText;
+        TextView statusText;
+        ImageView indicator;
+        ImageButton btnRemove;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             nameText = itemView.findViewById(R.id.textKeyName);
             keyText = itemView.findViewById(R.id.textApiKey);
+            statusText = itemView.findViewById(R.id.textKeyStatus);
+            indicator = itemView.findViewById(R.id.indicatorKey);
+            btnRemove = itemView.findViewById(R.id.btnRemoveKey);
         }
     }
 }

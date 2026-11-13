@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material 3 color roles (dark) -->
+    <color name="primary">#BAC3FF</color>
+    <color name="on_primary">#08218A</color>
+    <color name="primary_container">#293CA0</color>
+    <color name="on_primary_container">#E1E3F8</color>
+
+    <color name="secondary">#BEC6DC</color>
+    <color name="on_secondary">#283041</color>
+    <color name="secondary_container">#3E4759</color>
+    <color name="on_secondary_container">#DBE2F9</color>
+
+    <color name="tertiary">#80D4D9</color>
+    <color name="on_tertiary">#003739</color>
+    <color name="tertiary_container">#004F53</color>
+    <color name="on_tertiary_container">#9CF1F5</color>
+
+    <color name="background">#121318</color>
+    <color name="on_background">#E3E1E9</color>
+    <color name="surface">#121318</color>
+    <color name="on_surface">#E3E1E9</color>
+    <color name="surface_variant">#45464F</color>
+    <color name="on_surface_variant">#C6C5D0</color>
+    <color name="surface_container_lowest">#0D0E12</color>
+    <color name="surface_container_low">#1F2025</color>
+    <color name="surface_container">#26272D</color>
+    <color name="surface_container_high">#303138</color>
+    <color name="outline">#90909A</color>
+    <color name="outline_variant">#55565F</color>
+
+    <color name="error">#F2B8B5</color>
+    <color name="on_error">#601410</color>
+    <color name="error_container">#8C1D18</color>
+    <color name="on_error_container">#F9DEDC</color>
+
+    <color name="divider">@color/outline_variant</color>
+
+    <!-- Status colors (dark) -->
+    <color name="status_running">#6DD58C</color>
+    <color name="status_stopped">#F28B82</color>
+    <color name="status_paused">#FDD663</color>
+    <color name="status_creating">#CE93D8</color>
+    <color name="status_deleting">#90A4AE</color>
+    <color name="status_error">#F28B82</color>
+    <color name="status_idle">#9FA8DA</color>
+    <color name="status_unknown">#9CA3AF</color>
+
+    <color name="primary_dark">#0D0C22</color>
+    <color name="primary_light">#3949AB</color>
+    <color name="accent">#80D4D9</color>
+    <color name="app_bar_background">@color/surface</color>
+    <color name="app_bar_on_background">@color/on_surface</color>
+    <color name="card_background">@color/surface_container_low</color>
+    <color name="text_primary">@color/on_surface</color>
+    <color name="text_secondary">@color/on_surface_variant</color>
+</resources>

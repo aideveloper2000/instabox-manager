@@ -5,17 +5,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,6 +26,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MachineDetailActivity extends AppCompatActivity {
+    private View coordinatorDetail;
     private String apiKey;
     private String machineId;
     private Machine machine;
@@ -32,21 +35,25 @@ public class MachineDetailActivity extends AppCompatActivity {
     private TextView nameText;
     private TextView specsText;
     private TextView templateText;
+    private TextView machineIdText;
     private ImageView indicatorState;
-    private LinearLayout llStart;
-    private LinearLayout llStop;
-    private LinearLayout llRestart;
-    private LinearLayout llPause;
-    private LinearLayout llResume;
-    private LinearLayout llCommand;
-    private LinearLayout llLogs;
-    private LinearLayout llMetrics;
-    private LinearLayout llTerminal;
-    private LinearLayout llVnc;
-    private LinearLayout llSsh;
+    private MaterialButton llStart;
+    private MaterialButton llStop;
+    private MaterialButton llRestart;
+    private MaterialButton llPause;
+    private MaterialButton llResume;
+    private MaterialButton llWake;
+    private MaterialButton llDelete;
+    private MaterialButton llCommand;
+    private MaterialButton llLogs;
+    private MaterialButton llMetrics;
+    private MaterialButton llTerminal;
+    private MaterialButton llVnc;
+    private MaterialButton llSsh;
+    private View commandCard;
     private TextInputLayout commandLayout;
     private TextInputEditText inputCommand;
-    private Button btnExecute;
+    private MaterialButton btnExecute;
     private TextView commandOutputText;
 
     private ExecutorService executor;
@@ -63,42 +70,45 @@ public class MachineDetailActivity extends AppCompatActivity {
         apiKey = intent.getStringExtra("api_key");
 
         if (machineId == null || machineId.isEmpty()) {
-            Toast.makeText(this, "No machine selected", Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(R.id.coordinatorDetail), R.string.machine_details, Snackbar.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         initViews();
-        setupAdapters();
-        loadMachineDetails();
         setupActionListeners();
+        loadMachineDetails();
     }
 
     private void initViews() {
+        coordinatorDetail = findViewById(R.id.coordinatorDetail);
         statusText = findViewById(R.id.textStatus);
         nameText = findViewById(R.id.textName);
         specsText = findViewById(R.id.textSpecs2);
         templateText = findViewById(R.id.textTemplate2);
+        machineIdText = findViewById(R.id.textMachineId);
         indicatorState = findViewById(R.id.indicatorState);
         llStart = findViewById(R.id.llStart);
         llStop = findViewById(R.id.llStop);
         llRestart = findViewById(R.id.llRestart);
         llPause = findViewById(R.id.llPause);
         llResume = findViewById(R.id.llResume);
+        llWake = findViewById(R.id.llWake);
+        llDelete = findViewById(R.id.llDelete);
         llCommand = findViewById(R.id.llCommand);
-        commandLayout = findViewById(R.id.commandLayout);
-        inputCommand = findViewById(R.id.inputCommand);
-        btnExecute = findViewById(R.id.btnExecute);
-        commandOutputText = findViewById(R.id.textCommandOutput);
         llLogs = findViewById(R.id.llLogs);
         llMetrics = findViewById(R.id.llMetrics);
         llTerminal = findViewById(R.id.llTerminal);
         llVnc = findViewById(R.id.llVnc);
         llSsh = findViewById(R.id.llSsh);
-    }
+        commandCard = findViewById(R.id.commandCard);
+        commandLayout = findViewById(R.id.commandLayout);
+        inputCommand = findViewById(R.id.inputCommand);
+        btnExecute = findViewById(R.id.btnExecute);
+        commandOutputText = findViewById(R.id.textCommandOutput);
 
-    private void setupAdapters() {
-        // No adapters needed for detail view
+        com.google.android.material.appbar.MaterialToolbar toolbarDetail = findViewById(R.id.toolbarDetail);
+        toolbarDetail.setNavigationOnClickListener(v -> finish());
     }
 
     private void loadMachineDetails() {
@@ -113,18 +123,18 @@ public class MachineDetailActivity extends AppCompatActivity {
                             machine = response.body();
                             populateMachineData();
                         } else {
-                            Toast.makeText(MachineDetailActivity.this, "Failed to load machine: " + response.message(),
-                                    Toast.LENGTH_SHORT).show();
+                            Snackbar.make(coordinatorDetail,
+                                    getString(R.string.connection_error) + ": " + response.message(),
+                                    Snackbar.LENGTH_SHORT).show();
                         }
                     });
                 }
 
                 @Override
                 public void onFailure(Call<Machine> call, Throwable t) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(MachineDetailActivity.this, "Network error: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    });
+                    runOnUiThread(() -> Snackbar.make(coordinatorDetail,
+                            getString(R.string.connection_error) + ": " + t.getMessage(),
+                            Snackbar.LENGTH_SHORT).show());
                 }
             });
         });
@@ -132,29 +142,16 @@ public class MachineDetailActivity extends AppCompatActivity {
 
     private void populateMachineData() {
         if (machine == null) {
-            commandOutputText.setText("Failed to load machine data");
+            commandOutputText.setText(R.string.connection_error);
             return;
         }
 
-        String state = machine.getState() != null ? machine.getState() : (machine.getDesiredState() != null ? machine.getDesiredState() : "unknown");
+        String state = machine.getState() != null ? machine.getState()
+                : (machine.getDesiredState() != null ? machine.getDesiredState() : "unknown");
         statusText.setText(state);
         nameText.setText(machine.getName());
-
-        int statusColor = R.color.status_unknown;
-        if (state.equals("running") || state.equals("created")) {
-            statusColor = R.color.status_running;
-        } else if (state.equals("stopped")) {
-            statusColor = R.color.status_stopped;
-        } else if (state.equals("paused") || state.equals("suspended")) {
-            statusColor = R.color.status_paused;
-        } else if (state.equals("creating")) {
-            statusColor = R.color.status_creating;
-        } else if (state.equals("deleting")) {
-            statusColor = R.color.status_deleting;
-        } else if (state.equals("error")) {
-            statusColor = R.color.status_error;
-        }
-        indicatorState.setImageResource(statusColor);
+        machineIdText.setText(machine.getId());
+        indicatorState.setColorFilter(statusColor(state));
 
         if (machine.getSpec() != null) {
             float memGb = machine.getSpec().getMemMiB() / 1024f;
@@ -166,7 +163,27 @@ public class MachineDetailActivity extends AppCompatActivity {
             templateText.setText(machine.getTemplate().getId());
         }
 
-        commandOutputText.setText("Select a machine and enter a command to run");
+        commandOutputText.setText(R.string.command_hint);
+    }
+
+    private int statusColor(String state) {
+        int colorRes;
+        if (state.equals("running") || state.equals("created")) {
+            colorRes = R.color.status_running;
+        } else if (state.equals("stopped")) {
+            colorRes = R.color.status_stopped;
+        } else if (state.equals("paused") || state.equals("suspended")) {
+            colorRes = R.color.status_paused;
+        } else if (state.equals("creating")) {
+            colorRes = R.color.status_creating;
+        } else if (state.equals("deleting")) {
+            colorRes = R.color.status_deleting;
+        } else if (state.equals("error")) {
+            colorRes = R.color.status_error;
+        } else {
+            colorRes = R.color.status_unknown;
+        }
+        return ContextCompat.getColor(this, colorRes);
     }
 
     private void setupActionListeners() {
@@ -175,22 +192,24 @@ public class MachineDetailActivity extends AppCompatActivity {
         llRestart.setOnClickListener(v -> restartMachine());
         llPause.setOnClickListener(v -> pauseMachine());
         llResume.setOnClickListener(v -> resumeMachine());
+        llWake.setOnClickListener(v -> wakeMachine());
+        llDelete.setOnClickListener(v -> confirmDelete());
         llCommand.setOnClickListener(v -> {
-            commandLayout.setVisibility(View.VISIBLE);
+            commandCard.setVisibility(commandCard.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
         });
+        llLogs.setOnClickListener(v -> Snackbar.make(coordinatorDetail, R.string.logs, Snackbar.LENGTH_SHORT).show());
+        llMetrics.setOnClickListener(v -> Snackbar.make(coordinatorDetail, R.string.metrics, Snackbar.LENGTH_SHORT).show());
+        llTerminal.setOnClickListener(v -> Snackbar.make(coordinatorDetail, R.string.terminal, Snackbar.LENGTH_SHORT).show());
+        llVnc.setOnClickListener(v -> Snackbar.make(coordinatorDetail, R.string.vnc, Snackbar.LENGTH_SHORT).show());
+        llSsh.setOnClickListener(v -> Snackbar.make(coordinatorDetail, R.string.ssh, Snackbar.LENGTH_SHORT).show());
         btnExecute.setOnClickListener(v -> {
-            String cmd = inputCommand.getText().toString().trim();
+            String cmd = inputCommand.getText() == null ? "" : inputCommand.getText().toString().trim();
             if (cmd.isEmpty()) {
-                Toast.makeText(this, "Enter a command", Toast.LENGTH_SHORT).show();
+                Snackbar.make(coordinatorDetail, R.string.enter_command, Snackbar.LENGTH_SHORT).show();
                 return;
             }
             executeCommand(cmd);
         });
-        llLogs.setOnClickListener(v -> Toast.makeText(this, "Logs", Toast.LENGTH_SHORT).show());
-        llMetrics.setOnClickListener(v -> Toast.makeText(this, "Metrics", Toast.LENGTH_SHORT).show());
-        llTerminal.setOnClickListener(v -> Toast.makeText(this, "Terminal", Toast.LENGTH_SHORT).show());
-        llVnc.setOnClickListener(v -> Toast.makeText(this, "VNC", Toast.LENGTH_SHORT).show());
-        llSsh.setOnClickListener(v -> Toast.makeText(this, "SSH", Toast.LENGTH_SHORT).show());
     }
 
     private Callback<Object> actionCallback(String successMessage) {
@@ -198,98 +217,149 @@ public class MachineDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(MachineDetailActivity.this, successMessage, Toast.LENGTH_SHORT).show();
+                    Snackbar.make(coordinatorDetail, successMessage, Snackbar.LENGTH_SHORT).show();
                     loadMachineDetails();
                 } else {
-                    Toast.makeText(MachineDetailActivity.this, "Failed: " + response.message(),
-                            Toast.LENGTH_SHORT).show();
+                    Snackbar.make(coordinatorDetail, getString(R.string.connection_error) + ": " + response.message(),
+                            Snackbar.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
-                Toast.makeText(MachineDetailActivity.this, "Network error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                Snackbar.make(coordinatorDetail, getString(R.string.connection_error) + ": " + t.getMessage(),
+                        Snackbar.LENGTH_SHORT).show();
             }
         };
     }
 
     private void startMachine() {
         if (machine == null || machine.getId() == null) {
-            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorDetail, R.string.machine_details, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService service = ApiClient.createApiService(apiKey);
-        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        String idempotencyKey = UUID.randomUUID().toString();
         service.startMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
-                .enqueue(actionCallback("Started machine"));
+                .enqueue(actionCallback(getString(R.string.start_machine)));
     }
 
     private void stopMachine() {
         if (machine == null || machine.getId() == null) {
-            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorDetail, R.string.machine_details, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService service = ApiClient.createApiService(apiKey);
-        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        String idempotencyKey = UUID.randomUUID().toString();
         service.stopMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
-                .enqueue(actionCallback("Stopped machine"));
+                .enqueue(actionCallback(getString(R.string.stop_machine)));
     }
 
     private void pauseMachine() {
         if (machine == null || machine.getId() == null) {
-            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorDetail, R.string.machine_details, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService service = ApiClient.createApiService(apiKey);
-        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        String idempotencyKey = UUID.randomUUID().toString();
         service.suspendMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
-                .enqueue(actionCallback("Paused machine"));
+                .enqueue(actionCallback(getString(R.string.pause_machine)));
     }
 
     private void resumeMachine() {
         if (machine == null || machine.getId() == null) {
-            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorDetail, R.string.machine_details, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService service = ApiClient.createApiService(apiKey);
-        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        String idempotencyKey = UUID.randomUUID().toString();
         service.resumeMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
-                .enqueue(actionCallback("Resumed machine"));
+                .enqueue(actionCallback(getString(R.string.resume_machine)));
     }
 
-    private void restartMachine() {
+    private void wakeMachine() {
         if (machine == null || machine.getId() == null) {
-            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorDetail, R.string.machine_details, Snackbar.LENGTH_SHORT).show();
             return;
         }
-        final String machineId = machine.getId();
-        Toast.makeText(this, "Restarting machine…", Toast.LENGTH_SHORT).show();
         ApiService service = ApiClient.createApiService(apiKey);
-        String idempotencyKey = java.util.UUID.randomUUID().toString();
-        service.stopMachine("Bearer " + apiKey, machineId, idempotencyKey)
+        String idempotencyKey = UUID.randomUUID().toString();
+        service.wakeMachine("Bearer " + apiKey, machine.getId(), idempotencyKey)
+                .enqueue(actionCallback(getString(R.string.wake_machine)));
+    }
+
+    private void confirmDelete() {
+        if (machine == null || machine.getId() == null) {
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_machine)
+                .setMessage(getString(R.string.machine_name) + ": " + machine.getName())
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete_machine, (dialog, which) -> deleteMachine())
+                .show();
+    }
+
+    private void deleteMachine() {
+        ApiService service = ApiClient.createApiService(apiKey);
+        String idempotencyKey = UUID.randomUUID().toString();
+        service.deleteMachine("Bearer " + apiKey, machine.getId(), "true", idempotencyKey)
                 .enqueue(new Callback<Object>() {
                     @Override
                     public void onResponse(Call<Object> call, Response<Object> response) {
                         if (response.isSuccessful()) {
-                            waitForStoppedThenStart(machineId, 0);
+                            Snackbar.make(coordinatorDetail, R.string.delete_machine, Snackbar.LENGTH_SHORT).show();
+                            finish();
                         } else {
-                            Toast.makeText(MachineDetailActivity.this, "Restart failed: " + response.message(),
-                                    Toast.LENGTH_SHORT).show();
+                            Snackbar.make(coordinatorDetail,
+                                    getString(R.string.connection_error) + ": " + response.message(),
+                                    Snackbar.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Object> call, Throwable t) {
-                        Toast.makeText(MachineDetailActivity.this, "Network error: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        Snackbar.make(coordinatorDetail,
+                                getString(R.string.connection_error) + ": " + t.getMessage(),
+                                Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void restartMachine() {
+        if (machine == null || machine.getId() == null) {
+            Snackbar.make(coordinatorDetail, R.string.machine_details, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        final String id = machine.getId();
+        Snackbar.make(coordinatorDetail, R.string.restart_machine + "…", Snackbar.LENGTH_SHORT).show();
+        ApiService service = ApiClient.createApiService(apiKey);
+        String idempotencyKey = UUID.randomUUID().toString();
+        service.stopMachine("Bearer " + apiKey, id, idempotencyKey)
+                .enqueue(new Callback<Object>() {
+                    @Override
+                    public void onResponse(Call<Object> call, Response<Object> response) {
+                        if (response.isSuccessful()) {
+                            waitForStoppedThenStart(id, 0);
+                        } else {
+                            Snackbar.make(coordinatorDetail,
+                                    getString(R.string.connection_error) + ": " + response.message(),
+                                    Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Object> call, Throwable t) {
+                        Snackbar.make(coordinatorDetail,
+                                getString(R.string.connection_error) + ": " + t.getMessage(),
+                                Snackbar.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void waitForStoppedThenStart(final String machineId, final int attempt) {
         if (attempt >= 20) {
-            Toast.makeText(this, "Restart timed out waiting for stop", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorDetail, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService service = ApiClient.createApiService(apiKey);
@@ -299,8 +369,8 @@ public class MachineDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null
                         && "stopped".equals(response.body().getState())) {
                     ApiService svc = ApiClient.createApiService(apiKey);
-                    svc.startMachine("Bearer " + apiKey, machineId, java.util.UUID.randomUUID().toString())
-                            .enqueue(actionCallback("Restarted machine"));
+                    svc.startMachine("Bearer " + apiKey, machineId, UUID.randomUUID().toString())
+                            .enqueue(actionCallback(getString(R.string.restart_machine)));
                 } else {
                     new Handler(Looper.getMainLooper())
                             .postDelayed(() -> waitForStoppedThenStart(machineId, attempt + 1), 1500);
@@ -317,12 +387,12 @@ public class MachineDetailActivity extends AppCompatActivity {
 
     private void executeCommand(String command) {
         if (machine == null || machine.getId() == null) {
-            Toast.makeText(this, "Machine ID not available", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorDetail, R.string.machine_details, Snackbar.LENGTH_SHORT).show();
             return;
         }
         ApiService.ExecRequest execRequest = new ApiService.ExecRequest(command);
         ApiService service = ApiClient.createApiService(apiKey);
-        String idempotencyKey = java.util.UUID.randomUUID().toString();
+        String idempotencyKey = UUID.randomUUID().toString();
         service.execCommand("Bearer " + apiKey, machine.getId(), execRequest, idempotencyKey)
                 .enqueue(new Callback<ApiService.ExecResult>() {
                     @Override
@@ -338,7 +408,6 @@ public class MachineDetailActivity extends AppCompatActivity {
                                     output.append("STDERR:\n").append(result.getStderr());
                                 }
                                 commandOutputText.setText(output.toString());
-                                Toast.makeText(MachineDetailActivity.this, "Command executed", Toast.LENGTH_SHORT).show();
                             } else {
                                 commandOutputText.setText("Error: " + response.message());
                             }
@@ -347,10 +416,7 @@ public class MachineDetailActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<ApiService.ExecResult> call, Throwable t) {
-                        runOnUiThread(() -> {
-                            commandOutputText.setText("Error: " + t.getMessage());
-                            Toast.makeText(MachineDetailActivity.this, "Network error", Toast.LENGTH_SHORT).show();
-                        });
+                        runOnUiThread(() -> commandOutputText.setText("Error: " + t.getMessage()));
                     }
                 });
     }

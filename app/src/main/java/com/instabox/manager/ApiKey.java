@@ -5,6 +5,10 @@ public class ApiKey {
     private String name;
     private boolean enabled;
 
+    // Local-only runtime state (not persisted).
+    private transient int machineCount;
+    private transient boolean syncFailed;
+
     public ApiKey() {
     }
 
@@ -36,5 +40,21 @@ public class ApiKey {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public int getMachineCount() {
+        return machineCount;
+    }
+
+    public void setMachineCount(int machineCount) {
+        this.machineCount = machineCount;
+    }
+
+    public boolean isSyncFailed() {
+        return syncFailed;
+    }
+
+    public void setSyncFailed(boolean syncFailed) {
+        this.syncFailed = syncFailed;
     }
 }

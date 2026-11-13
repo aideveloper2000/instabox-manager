@@ -44,13 +44,13 @@ Android Java application to manage **Instabox** machines. List all machines, vie
 - **Terminal** (SSH)
 - **VNC** access
 
-### 🎨 Beautiful UI
-- Material Design components
+### 🎨 Material 3 UI
+- Material Design 3 components, color roles, and type scale
+- Light and dark themes
+- Inline sync status in the API key and Machines widgets (no toasts)
 - Status color indicators
-- Card-based layouts
-- Responsive scrolling
-- Floating action buttons
-- Loading indicators
+- Card-based layouts with 48dp touch targets
+- Snackbars for transient feedback
 
 ## Project Structure
 

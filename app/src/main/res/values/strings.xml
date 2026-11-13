@@ -4,18 +4,36 @@
 
     <!-- Main Screen -->
     <string name="title_activity_main">Instabox Manager</string>
-    <string name="add_api_key">Add API Key</string>
+    <string name="add_api_key">Add API key</string>
     <string name="refreshing">Refreshing…</string>
     <string name="loading">Loading…</string>
-    <string name="no_machines">No machines found</string>
-    <string name="no_keys">No API keys configured</string>
+    <string name="no_machines">No machines</string>
+    <string name="no_machine_selected">No machine selected</string>
+    <string name="no_machines_hint">Add an API key and tap the sync button to load your machines.</string>
+    <string name="no_keys">No API keys yet</string>
+    <string name="no_keys_hint">Add your first Instabox API key below.</string>
     <string name="add_first_key">Add your first Instabox API key</string>
     <string name="remove_key">Remove</string>
-    <string name="sync_now">Sync Now</string>
+    <string name="sync_now">Sync machines</string>
+    <string name="sync">Sync</string>
     <string name="sync_error">Sync failed</string>
     <string name="sync_success">Sync complete</string>
-    <string name="select_key">Select API Key</string>
+    <string name="select_key">Select API key</string>
     <string name="machines">Machines</string>
+    <string name="api_keys">API keys</string>
+    <string name="api_keys_hint">Add an Instabox API key to list and control your machines.</string>
+    <string name="syncing">Syncing…</string>
+    <string name="not_synced">Not synced yet</string>
+    <string name="chip_synced">Synced</string>
+    <string name="chip_syncing">Syncing</string>
+    <string name="chip_failed">Sync failed</string>
+    <string name="chip_not_synced">Not synced</string>
+    <string name="sync_detail_idle">Machines appear here after your first sync.</string>
+    <string name="sync_detail_syncing">Fetching your machines…</string>
+    <string name="synced_count">%1$d machine%2$s · Synced %3$s</string>
+    <string name="synced_count_fail">%1$d machine%2$s</string>
+    <string name="machine_count">%1$d machine%2$s</string>
+    <string name="machine_count_none">Not synced</string>
 
     <!-- Machine Details -->
     <string name="machine_details">Machine Details</string>
@@ -23,13 +41,14 @@
     <string name="machine_status">Status</string>
     <string name="machine_state">State</string>
     <string name="machine_template">Template</string>
-    <string name="machine_spec">vCPUs: %1$d, RAM: %2$.1f GB</string>
+    <string name="machine_spec">%1$d vCPU · %2$.1f GB RAM</string>
     <string name="machine_specs_label">Specs</string>
     <string name="machine_storage">Storage: %1$s</string>
     <string name="machine_idle">Idle after %1$d sec</string>
     <string name="machine_last_error">Last Error</string>
     <string name="machine_created">Created</string>
     <string name="machine_updated">Updated</string>
+    <string name="machine_id">ID</string>
     <string name="machine_operations">Operations</string>
     <string name="machine_actions">Actions</string>
     <string name="machine_logs">Logs</string>
@@ -71,6 +90,7 @@
     <string name="status_deleting">Deleting</string>
     <string name="status_error">Error</string>
     <string name="status_idle">Idle</string>
+    <string name="status_unknown">Unknown</string>
 
     <!-- Network -->
     <string name="no_network">No network connection</string>
@@ -79,10 +99,17 @@
 
     <!-- Setup -->
     <string name="enter_api_keys">Enter your Instabox API keys below</string>
-    <string name="api_key_hint">ibk_… API key</string>
-    <string name="api_key_name">Key Name (optional)</string>
-    <string name="add">Add</string>
+    <string name="api_key_hint">Instabox API key</string>
+    <string name="api_key_helper">Starts with ibk_</string>
+    <string name="api_key_name">Key name (optional)</string>
+    <string name="add">Add key</string>
     <string name="edit">Edit</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="remove_key_confirm">Remove this API key?</string>
+    <string name="key_added">API key added</string>
+    <string name="key_removed">API key removed</string>
+    <string name="invalid_key">Enter a valid Instabox API key (starts with ibk_)</string>
+    <string name="api_key_required">API key is required</string>
 </resources>
