@@ -206,12 +206,27 @@ public class MachineListActivity extends AppCompatActivity {
 
         indicatorState.setColorFilter(statusColor(state));
 
+        boolean running = "running".equals(state) || "created".equals(state);
+        boolean stopped = "stopped".equals(state);
+        boolean paused = "paused".equals(state) || "suspended".equals(state);
+        setActionEnabled(llStart, stopped);
+        setActionEnabled(llStop, running || paused);
+        setActionEnabled(llRestart, running || paused || stopped);
+        setActionEnabled(llPause, running);
+        setActionEnabled(llResume, paused);
+        setActionEnabled(llWake, paused || stopped);
+
         llStart.setVisibility(View.VISIBLE);
         llStop.setVisibility(View.VISIBLE);
         llRestart.setVisibility(View.VISIBLE);
         llPause.setVisibility(View.VISIBLE);
         llResume.setVisibility(View.VISIBLE);
         llWake.setVisibility(View.VISIBLE);
+    }
+
+    private void setActionEnabled(MaterialButton button, boolean enabled) {
+        button.setEnabled(enabled);
+        button.setAlpha(enabled ? 1f : 0.4f);
     }
 
     private int statusColor(String state) {

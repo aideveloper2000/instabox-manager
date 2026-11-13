@@ -152,6 +152,7 @@ public class MachineDetailActivity extends AppCompatActivity {
         nameText.setText(machine.getName());
         machineIdText.setText(machine.getId());
         indicatorState.setColorFilter(statusColor(state));
+        updateActionState(state);
 
         if (machine.getSpec() != null) {
             float memGb = machine.getSpec().getMemMiB() / 1024f;
@@ -184,6 +185,26 @@ public class MachineDetailActivity extends AppCompatActivity {
             colorRes = R.color.status_unknown;
         }
         return ContextCompat.getColor(this, colorRes);
+    }
+
+    private void updateActionState(String state) {
+        boolean running = "running".equals(state) || "created".equals(state);
+        boolean stopped = "stopped".equals(state);
+        boolean paused = "paused".equals(state) || "suspended".equals(state);
+        boolean busy = "creating".equals(state) || "deleting".equals(state);
+
+        setActionEnabled(llStart, stopped);
+        setActionEnabled(llStop, running || paused);
+        setActionEnabled(llRestart, running || paused || stopped);
+        setActionEnabled(llPause, running);
+        setActionEnabled(llResume, paused);
+        setActionEnabled(llWake, paused || stopped);
+        setActionEnabled(llDelete, !busy);
+    }
+
+    private void setActionEnabled(MaterialButton button, boolean enabled) {
+        button.setEnabled(enabled);
+        button.setAlpha(enabled ? 1f : 0.4f);
     }
 
     private void setupActionListeners() {
